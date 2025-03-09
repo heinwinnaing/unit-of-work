@@ -7,3 +7,5 @@
 /UnitOfWork.Test/bin/Debug/net8.0
 /UnitOfWork.Test/obj
 *.sln
+/.vs/UnitOfWork/v17
+/.vs/
