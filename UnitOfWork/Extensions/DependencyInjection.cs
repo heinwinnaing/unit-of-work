@@ -17,7 +17,7 @@ public class UnitOfWorkOption : IUnitOfWorkOption
         {
             options.UseMySQL(connectionString);
         })
-            .AddTransient<IUnitOfWork, UnitOfWork<T>>();
+            .AddScoped<IUnitOfWork, UnitOfWork<T>>();
         return _services;
     }
 }
