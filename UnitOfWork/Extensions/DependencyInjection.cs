@@ -20,6 +20,23 @@ public class UnitOfWorkOption : IUnitOfWorkOption
             .AddScoped<IUnitOfWork, UnitOfWork<T>>();
         return _services;
     }
+
+    public IServiceCollection UseMySql<TWriter, TReader>(string wirterConnectionString,
+        string readerConnectionString) 
+        where TWriter : DbContext
+        where TReader : DbContext
+    {
+        _services.AddDbContextPool<TWriter>(options =>
+        {
+            options.UseMySQL(wirterConnectionString);
+        })
+            .AddDbContextPool<TReader>(options =>
+            {
+                options.UseMySQL(readerConnectionString);
+            })
+            .AddTransient<IUnitOfWork<TWriter, TReader>, UnitOfWork<TWriter, TReader>>();
+        return _services;
+    }
 }
 
 public static class DependencyInjection

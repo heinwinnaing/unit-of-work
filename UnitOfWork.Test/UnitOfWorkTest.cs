@@ -1,23 +1,68 @@
-﻿using Moq;
-namespace UnitOfWork.Test
+﻿using Microsoft.EntityFrameworkCore;
+using Moq;
+namespace UnitOfWork.Test;
+
+public record TestClass
 {
-    public class UnitOfWorkTest
+    public int Id { get; set; }
+    public string? Name { get; set; }
+}
+public class TestDbWriter : DbContext { }
+public class TestDbReader : DbContext { }
+public class UnitOfWorkTest
+{
+    private readonly Mock<IUnitOfWork<TestDbWriter, TestDbReader>> mockUow;
+    public UnitOfWorkTest()
     {
-        [Fact]
-        public void TestUOWSuccess()
-        {
-            //arrange
-            var expected = new { id = 1, name = "test" };
-            var mockUow = new Mock<IUnitOfWork>();
-            mockUow.Setup(s => s.GetRepository<object>().Get(r => 1 ==1))
-                .Returns(new { id = 1, name = "test" });
+        mockUow = new Mock<IUnitOfWork<TestDbWriter, TestDbReader>>();
+    }
 
-            //action
-            var result = mockUow.Object.GetRepository<object>().Get(r => 1 == 1);
+    [Fact]
+    public void TestUOWSuccess()
+    {
+        //arrange
+        var expected = new TestClass { Id = 1, Name = "test" };
+        mockUow.Setup(s => s.GetRepository<TestClass>().Get(r => 1 ==1))
+            .Returns(new TestClass { Id = 1, Name = "test" });
 
-            //assert
-            Assert.NotNull(result);
-            Assert.Equal(expected, result);
-        }
+        //action
+        var result = mockUow.Object.GetRepository<TestClass>().Get(r => 1 == 1);
+
+        //assert
+        Assert.NotNull(result);
+        Assert.Equal(expected, result);
+    }
+
+    [Fact]
+    public void UowWriteContextTestSuccess()
+    {
+        //arrange
+        var expected = new TestClass { Id = 1, Name = "Writer test" };
+        var payload = new TestClass { Id = 1, Name = "Writer test" };
+        mockUow.Setup(r => r.ReaderRepository<TestClass>().Add(payload))
+            .Returns(payload);
+
+        //act
+        var result = mockUow.Object.ReaderRepository<TestClass>().Add(payload);
+
+        //assert
+        Assert.NotNull(result);
+        Assert.Equal(expected, result);
+    }
+
+    [Fact]
+    public void UowReaderContextTestSuccess()
+    {
+        //arrange
+        var expected = new TestClass { Id = 1, Name = "Writer test" };
+        mockUow.Setup(r => r.ReaderRepository<TestClass>().Get(1))
+            .Returns(new TestClass { Id = 1, Name = "Writer test" });
+
+        //act
+        var result = mockUow.Object.ReaderRepository<TestClass>().Get(1);
+
+        //assert
+        Assert.NotNull(result);
+        Assert.Equal(expected, result);
     }
 }
