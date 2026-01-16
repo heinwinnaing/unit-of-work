@@ -14,6 +14,6 @@ It helps manage changes across multiple repositories to ensure data consistency 
 ```csharp
 builder.Services.AddUnitOfWork(options =>
 {
-    string connectionString = "your-database-connection";
+    string connectionString = "your-database-connection-string";
     options.UseMySql<MyDbContext>(connectionString);
 });
